@@ -69,8 +69,8 @@
 &trans  &kp F1  &kp F2  &kp F3  &kp F4  &kp F5    &trans  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10 &trans
 &trans  &trans  &trans  &kp LS(LBKT)  &kp LS(RBKT)  &trans    &trans  &trans  &kp PLUS  &kp MINUS  &trans  &trans  &trans
 &trans  &trans  &trans  &kp LBKT  &kp RBKT  &trans    &trans  &trans  &kp EQUAL  &kp UNDER  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &UP_ARROW  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans &kp LEFT_ARROW  &DOWN_ARROW  &RIGHT_ARROW 
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &kp UP_ARROW  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans &kp LEFT_ARROW  &kp DOWN_ARROW  &kp RIGHT_ARROW 
 >;
 
             display-name = "symbol";
