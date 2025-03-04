@@ -55,7 +55,7 @@
             bindings = <&rgb_ug RGB_BRI>, <&rgb_ug RGB_BRD>;
         };
 
-        rgbh_encoder: rgb_encoder {
+        rgbh_encoder: rgbh_encoder {
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
             bindings = <&rgb_ug RGB_HUD>, <&rgb_ug RGB_HUI>;
