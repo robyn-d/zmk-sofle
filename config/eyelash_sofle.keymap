@@ -48,6 +48,18 @@
         tap-ms = <30>;
     };
 
+
+        rgb_encoder: rgb_encoder {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgb_ug RGB_BRI>, <&rgb_ug RGB_BRD>;
+        };
+
+        rgbh_encoder: rgb_encoder {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&rgb_ug RGB_HUD>, <&rgb_ug RGB_HUI>;
+        };
     keymap {
         compatible = "zmk,keymap";
 
@@ -60,7 +72,7 @@
 &rgb_ug RGB_TOG  &kp LEFT_ALT  &kp LEFT_GUI  &kp ESC  &kp LSHIFT   &mo 1    &bt BT_NXT        &kp ENTER  &kp SPACE  &kp LEFT_ARROW      &kp DOWN_ARROW  &kp RIGHT_ARROW
             >;
 
-            sensor-bindings = <&inc_dec_kp RGB_HUD RGB_HUI>;
+            sensor-bindings = <&rgbh_encoder>;
             display-name = "default";
         };
 
@@ -85,7 +97,7 @@
 &kp LSHIFT  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &kp SPACE  &trans    &trans  &trans  &trans  &trans  &trans  &trans            >;
 
-            sensor-bindings = <&inc_dec_kp RGB_BRD RGB_BRI>;
+            sensor-bindings = <&rgb_encoder>;
             display-name = "gaming";
         };
 
