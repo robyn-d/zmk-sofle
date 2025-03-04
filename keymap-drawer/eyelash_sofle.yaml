@@ -51,7 +51,7 @@ layers:
   - {t: ',', s: <}
   - {t: ., s: '>'}
   - {t: /, s: '?'}
-  - {t: '3', h: toggle}
+  - {t: gaming, h: toggle}
   - RGB TOG
   - $$mdi:apple-keyboard-option$$
   - $$mdi:apple-keyboard-command$$
