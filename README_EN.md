@@ -18,6 +18,22 @@
 > If your  sofle was updated before 2025/8/22, please update to the latest firmware.
 >
 
+## Right Display Custom Art
+
+The right half now uses the internal `nice_view_custom` shield in `build.yaml`.
+
+To generate your own image/animation source files for the right display:
+
+```bash
+python -m pip install pillow
+python scripts/generate_nice_view_art.py path/to/image_or_gif
+```
+
+Generated files:
+
+- `boards/shields/nice_view_custom/widgets/art.c`
+- `boards/shields/nice_view_custom/widgets/art.h`
+
 ## Contact Me
 
 For 3D printed model files or any issues and malfunctions with the keyboard, please contact [380465425@qq.com](mailto:380465425@qq.com)
