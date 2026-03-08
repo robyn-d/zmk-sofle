@@ -27,6 +27,8 @@ DEFAULT_WIDTH = 140
 DEFAULT_HEIGHT = 68
 DEFAULT_THRESHOLD = 128
 DEFAULT_FRAME_DURATION_MS = 100
+DEFAULT_RESIZE_MODE = "contain"
+DEFAULT_ROTATE = "cw"
 
 
 def lanczos_resample() -> int:
@@ -95,8 +97,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--resize-mode",
         choices=("cover", "contain", "stretch"),
-        default="cover",
+        default=DEFAULT_RESIZE_MODE,
         help="Resize behavior before thresholding (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--rotate",
+        choices=("none", "cw", "ccw", "180"),
+        default=DEFAULT_ROTATE,
+        help="Rotate each source frame before resize (default: %(default)s).",
     )
     return parser.parse_args()
 
@@ -130,10 +138,26 @@ def collect_input_files(raw_inputs: Sequence[str]) -> List[Path]:
     return files
 
 
+def rotate_image(image: Image.Image, rotate: str) -> Image.Image:
+    if rotate == "none":
+        return image
+    if rotate == "cw":
+        return image.transpose(Image.Transpose.ROTATE_270)
+    if rotate == "ccw":
+        return image.transpose(Image.Transpose.ROTATE_90)
+    return image.transpose(Image.Transpose.ROTATE_180)
+
+
 def preprocess_frame(
-    frame_rgba: Image.Image, width: int, height: int, resize_mode: str, threshold: int
+    frame_rgba: Image.Image,
+    width: int,
+    height: int,
+    resize_mode: str,
+    rotate: str,
+    threshold: int,
 ) -> bytes:
     lanczos = lanczos_resample()
+    frame_rgba = rotate_image(frame_rgba, rotate)
     if resize_mode == "stretch":
         sized = frame_rgba.resize((width, height), lanczos)
     elif resize_mode == "contain":
@@ -176,7 +200,7 @@ def preprocess_frame(
 
 
 def load_frames(
-    files: Sequence[Path], width: int, height: int, resize_mode: str, threshold: int
+    files: Sequence[Path], width: int, height: int, resize_mode: str, rotate: str, threshold: int
 ) -> List[Frame]:
     frames: List[Frame] = []
     frame_index = 0
@@ -184,8 +208,8 @@ def load_frames(
     for file_path in files:
         with Image.open(file_path) as img:
             for local_index, frame in enumerate(ImageSequence.Iterator(img)):
-                rgba = frame.convert("RGBA")
-                packed = preprocess_frame(rgba, width, height, resize_mode, threshold)
+                rgba = ImageOps.exif_transpose(frame.convert("RGBA"))
+                packed = preprocess_frame(rgba, width, height, resize_mode, rotate, threshold)
                 symbol = f"custom_frame_{frame_index:03d}"
                 if getattr(img, "is_animated", False):
                     label = f"{file_path.name}#{local_index}"
@@ -321,6 +345,7 @@ def main() -> None:
         width=args.width,
         height=args.height,
         resize_mode=args.resize_mode,
+        rotate=args.rotate,
         threshold=args.threshold,
     )
 

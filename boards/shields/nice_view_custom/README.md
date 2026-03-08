@@ -34,7 +34,8 @@ Useful options:
 python scripts/generate_nice_view_art.py assets/nice-view-frames \
   --width 140 --height 68 \
   --threshold 128 \
-  --resize-mode cover \
+  --resize-mode contain \
+  --rotate cw \
   --frame-duration-ms 100
 ```
 
