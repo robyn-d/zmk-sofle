@@ -29,12 +29,23 @@ DEFAULT_THRESHOLD = 128
 DEFAULT_FRAME_DURATION_MS = 100
 DEFAULT_RESIZE_MODE = "contain"
 DEFAULT_ROTATE = "cw"
+DEFAULT_DITHER = "none"
 
 
 def lanczos_resample() -> int:
     if hasattr(Image, "Resampling"):
         return Image.Resampling.LANCZOS  # type: ignore[union-attr]
     return Image.LANCZOS  # type: ignore[union-attr]
+
+
+def pillow_dither(mode: str) -> int:
+    if hasattr(Image, "Dither"):
+        if mode == "floyd":
+            return Image.Dither.FLOYDSTEINBERG  # type: ignore[union-attr]
+        return Image.Dither.NONE  # type: ignore[union-attr]
+    if mode == "floyd":
+        return Image.FLOYDSTEINBERG  # type: ignore[union-attr]
+    return Image.NONE  # type: ignore[union-attr]
 
 
 @dataclass
@@ -106,6 +117,12 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_ROTATE,
         help="Rotate each source frame before resize (default: %(default)s).",
     )
+    parser.add_argument(
+        "--dither",
+        choices=("none", "floyd"),
+        default=DEFAULT_DITHER,
+        help="1-bit conversion mode (default: %(default)s).",
+    )
     return parser.parse_args()
 
 
@@ -148,12 +165,22 @@ def rotate_image(image: Image.Image, rotate: str) -> Image.Image:
     return image.transpose(Image.Transpose.ROTATE_180)
 
 
+def apply_threshold_bias(gray: Image.Image, threshold: int) -> Image.Image:
+    # Keep threshold meaningful for both dithered and non-dithered conversion paths.
+    if threshold == 128:
+        return gray
+    delta = 128 - threshold
+    lut = [min(255, max(0, value + delta)) for value in range(256)]
+    return gray.point(lut)
+
+
 def preprocess_frame(
     frame_rgba: Image.Image,
     width: int,
     height: int,
     resize_mode: str,
     rotate: str,
+    dither: str,
     threshold: int,
 ) -> bytes:
     lanczos = lanczos_resample()
@@ -178,6 +205,8 @@ def preprocess_frame(
     flattened = Image.new("RGBA", (width, height), (255, 255, 255, 255))
     flattened.alpha_composite(sized)
     gray = flattened.convert("L")
+    adjusted = apply_threshold_bias(gray, threshold)
+    bw = adjusted.convert("1", dither=pillow_dither(dither))
 
     bytes_per_row = (width + 7) // 8
     packed = bytearray(bytes_per_row * height)
@@ -191,7 +220,7 @@ def preprocess_frame(
                 if x >= width:
                     continue
                 # Bit 1 -> palette index 1 (white); bit 0 -> palette index 0 (black)
-                if gray.getpixel((x, y)) >= threshold:
+                if bw.getpixel((x, y)) != 0:
                     value |= 1 << (7 - bit)
             packed[offset] = value
             offset += 1
@@ -200,7 +229,13 @@ def preprocess_frame(
 
 
 def load_frames(
-    files: Sequence[Path], width: int, height: int, resize_mode: str, rotate: str, threshold: int
+    files: Sequence[Path],
+    width: int,
+    height: int,
+    resize_mode: str,
+    rotate: str,
+    dither: str,
+    threshold: int,
 ) -> List[Frame]:
     frames: List[Frame] = []
     frame_index = 0
@@ -209,7 +244,9 @@ def load_frames(
         with Image.open(file_path) as img:
             for local_index, frame in enumerate(ImageSequence.Iterator(img)):
                 rgba = ImageOps.exif_transpose(frame.convert("RGBA"))
-                packed = preprocess_frame(rgba, width, height, resize_mode, rotate, threshold)
+                packed = preprocess_frame(
+                    rgba, width, height, resize_mode, rotate, dither, threshold
+                )
                 symbol = f"custom_frame_{frame_index:03d}"
                 if getattr(img, "is_animated", False):
                     label = f"{file_path.name}#{local_index}"
@@ -346,6 +383,7 @@ def main() -> None:
         height=args.height,
         resize_mode=args.resize_mode,
         rotate=args.rotate,
+        dither=args.dither,
         threshold=args.threshold,
     )
 

@@ -34,10 +34,16 @@ Useful options:
 python scripts/generate_nice_view_art.py assets/nice-view-frames \
   --width 140 --height 68 \
   --threshold 128 \
+  --dither floyd \
   --resize-mode contain \
   --rotate cw \
   --frame-duration-ms 100
 ```
+
+`--dither` modes:
+
+- `none`: hard threshold to black/white
+- `floyd`: Floyd-Steinberg dithering
 
 This writes:
 

@@ -26,7 +26,7 @@ To generate your own image/animation source files for the right display:
 
 ```bash
 python -m pip install pillow
-python scripts/generate_nice_view_art.py path/to/image_or_gif
+python scripts/generate_nice_view_art.py path/to/image_or_gif --dither floyd
 ```
 
 Generated files:
