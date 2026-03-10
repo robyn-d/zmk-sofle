@@ -113,7 +113,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&kp LSHIFT  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &to 1
+&kp LSHIFT  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &kp UP_ARROW  &trans  &trans  &to 1
 &trans  &trans  &trans  &trans  &kp SPACE  &trans    &trans  &trans  &trans  &trans  &trans  &trans            >;
 
             sensor-bindings = <&rgb_encoder>;
